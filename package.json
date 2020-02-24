@@ -1,0 +1,15 @@
+{
+  "name": "skyeng_puppeteer",
+  "version": "1.0.0",
+  "description": "tests for some Skyeng projects",
+  "main": "test.js",
+  "scripts": {
+    "test": "node ./test.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "puppeteer": "^2.1.1"
+  }
+}
