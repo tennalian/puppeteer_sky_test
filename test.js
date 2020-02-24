@@ -1,5 +1,5 @@
 const puppeteer = require('puppeteer');
-const autn = require('./credentials');
+const auth = require('./credentials');
 
 (async() => {
 
@@ -12,7 +12,7 @@ const autn = require('./credentials');
     });
     page = await browser.newPage();
 
-    await page.goto('https://skyeng.ru', { waitUntil: 'load' });
+    await page.goto('https://skyeng.ru', { waitUntil: 'domcontentloaded', timeout: 30000 });
     console.log('--- Skyeng.ru page loaded')
 
     await page.waitForSelector('.b-ff-header__button', {timeout: 5000})
@@ -22,8 +22,10 @@ const autn = require('./credentials');
     const elementHandle = await page.$('iframe[src="https://id.skyeng.ru/ru/frame/login?skin=modern"]');
     const frame = await elementHandle.contentFrame();
 
-    await frame.type('.auth__form [name="username"]', autn.username);
+    await frame.waitForSelector('.auth__form', {timeout: 5000});
+    await frame.type('.auth__form [name="username"]', auth.username);
     await frame.type('.auth__form [name="password"]', auth.password);
+    await frame.waitFor(2000);
     await frame.click('.auth__form .auth__button');
 
     try {
@@ -40,10 +42,21 @@ const autn = require('./credentials');
 
     await page.waitForNavigation({ timeout: 20000});
     console.log('--- Kids onboarding page loaded');
-    await page.waitForSelector('sky-widgets-price-board', { timeout: 5000 });
-    await page.waitForSelector('.kids-container', { timeout: 5000 })
 
-    console.log('\x1b[32m%s\x1b[0m', 'Everything is fine! Price board on the page');
+    await page.waitForSelector('sky-widgets-price-board', { timeout: 5000 }).catch(() => {
+      console.log('\x1b[31m%s\x1b[0m', 'There is no price-board');
+    });
+    await page.waitForSelector('.kids-container', { timeout: 5000 }).catch(() => {
+      console.log('\x1b[31m%s\x1b[0m', 'Price-board is not visible');
+    });
+
+    const priceContainer = await page.evaluate(() => {
+      return document.querySelector('.kids-container');
+    });
+    if (priceContainer) {
+      console.log('\x1b[32m%s\x1b[0m', 'Everything is fine! Price board on the page');
+    }
+
     await browser.close();
 
   } catch (err) {

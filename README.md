@@ -9,6 +9,14 @@
 Создаем файл `credentials.js` с параметрами для авторизации. Убедитесь, что они верные, и вас не средирекит к черту на рога
 
 ```ts
+  module.exports = {
+    username,
+    password
+  };
+```
+
+Устанавливаем зависимости и запускаем:
+```ts
   npm install
-  npm tun test
+  npm run test
 ```
